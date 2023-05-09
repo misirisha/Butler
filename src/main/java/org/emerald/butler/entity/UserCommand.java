@@ -11,6 +11,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import io.jmix.core.Metadata;
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,5 +44,11 @@ public class UserCommand extends StandardEntity {
 
     public static UserCommandBuilder builder(Metadata metadata) {
         return new UserCommandBuilder(metadata);
+    }
+
+    @InstanceName
+    @DependsOnProperties({"dweller", "command", "progress"})
+    public String getInstanceName() {
+        return String.format("%s %s %s", dweller, command, progress);
     }
 }

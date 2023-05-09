@@ -8,6 +8,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import io.jmix.core.Metadata;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class Transport extends StandardEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Dweller dweller;
 
+    @InstanceName
     @Column(name = "number")
     private String number;
 

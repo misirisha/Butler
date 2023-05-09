@@ -7,6 +7,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import io.jmix.core.Messages;
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,5 +42,11 @@ public class DwellerApartmentRole extends StandardEntity {
 
     public void setApartmentRole(ApartmentRole apartmentRole) {
         this.apartmentRole = apartmentRole == null ? null : apartmentRole.getId();
+    }
+
+    @InstanceName
+    @DependsOnProperties({"id"})
+    public String getInstanceName(Messages messages) {
+        return String.format("%s-%s", messages.getMessage(DwellerApartmentRole.class, "DwellerApartmentRole"), getId());
     }
 }

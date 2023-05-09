@@ -2,12 +2,13 @@ package org.emerald.butler.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import io.jmix.core.Metadata;
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +25,7 @@ import org.emerald.butler.entity.builder.UserCommandTraceBuilder;
 @Table(name = "user_command_trace")
 public class UserCommandTrace extends StandardEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "user_command_id")
     private UserCommand userCommand;
 
@@ -36,5 +37,11 @@ public class UserCommandTrace extends StandardEntity {
 
     public static UserCommandTraceBuilder builder(Metadata metadata) {
         return new UserCommandTraceBuilder(metadata);
+    }
+
+    @InstanceName
+    @DependsOnProperties({"userCommand", "order", "progressStage"})
+    public String getInstanceName() {
+        return String.format("%s %s %s", userCommand, order, progressStage);
     }
 }

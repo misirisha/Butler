@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,15 +21,21 @@ import lombok.Setter;
 @Table(name = "House")
 public class House extends StandardEntity {
 
-    @Column(name ="region")
+    @Column(name = "region")
     private String region;
 
-    @Column(name ="city")
+    @Column(name = "city")
     private String city;
 
-    @Column(name ="street")
+    @Column(name = "street")
     private String street;
 
-    @Column(name ="number")
+    @Column(name = "number")
     private String number;
+
+    @InstanceName
+    @DependsOnProperties({"region", "city", "street", "number"})
+    public String getInstanceName() {
+        return String.format("%s %s %s %s", region, city, street, number);
+    }
 }

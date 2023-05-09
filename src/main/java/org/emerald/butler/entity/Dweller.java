@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import io.jmix.core.Metadata;
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,5 +37,11 @@ public class Dweller extends StandardEntity {
 
     public static DwellerBuilder builder(Metadata metadata) {
         return new DwellerBuilder(metadata);
+    }
+
+    @DependsOnProperties({"firstName", "lastName"})
+    @InstanceName
+    public String getInstanceName() {
+        return firstName + " " + lastName;
     }
 }
