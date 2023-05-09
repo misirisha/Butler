@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://jmix.io/schema/ui/menu">
+    <item screen="entityInspector.browse" caption="msg://io.jmix.datatoolsui.screen.entityinspector/browserCaption"/>
+    <item screen="User.browse" caption="msg://org.emerald.butler.screen.user/UserBrowse.caption"/>
+</menu-config>

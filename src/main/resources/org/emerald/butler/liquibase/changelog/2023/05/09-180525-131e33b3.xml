@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.11.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="butler">
+        <createTable tableName="Apartment">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_APARTMENT"/>
+            </column>
+            <column name="id_house" type="UUID"/>
+            <column name="number" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="butler">
+        <createTable tableName="Dweller">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_DWELLER"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="telegram_Id" type="BIGINT"/>
+            <column name="username" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="3" author="butler">
+        <createTable tableName="Dweller_apartment_role">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_DWELLER_APARTMENT_ROLE"/>
+            </column>
+            <column name="id_apartment" type="UUID"/>
+            <column name="id_dweller" type="UUID"/>
+            <column name="apartment_role" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="4" author="butler">
+        <createTable tableName="Dweller_chat_role">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_DWELLER_CHAT_ROLE"/>
+            </column>
+            <column name="id_chat" type="UUID"/>
+            <column name="id_dweller" type="UUID"/>
+            <column name="chat_role" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="5" author="butler">
+        <createTable tableName="House">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_HOUSE"/>
+            </column>
+            <column name="region" type="VARCHAR(255)"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="street" type="VARCHAR(255)"/>
+            <column name="number" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="6" author="butler">
+        <createTable tableName="TelegramChat">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TELEGRAMCHAT"/>
+            </column>
+            <column name="telegram_chat_id" type="VARCHAR(255)"/>
+            <column name="id_house" type="UUID"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="7" author="butler">
+        <createTable tableName="Transport">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TRANSPORT"/>
+            </column>
+            <column name="order_" type="BIGINT"/>
+            <column name="dweller_id" type="UUID"/>
+            <column name="number" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="8" author="butler">
+        <createTable tableName="User_command">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER_COMMAND"/>
+            </column>
+            <column name="dweller_id" type="UUID"/>
+            <column name="command" type="VARCHAR(255)"/>
+            <column name="progress" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="9" author="butler">
+        <createTable tableName="user_command_trace">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER_COMMAND_TRACE"/>
+            </column>
+            <column name="user_command_id" type="UUID"/>
+            <column name="order_" type="BIGINT"/>
+            <column name="progress_stage" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="10" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_house" baseTableName="Apartment"
+                                 constraintName="FK_APARTMENT_ON_ID_HOUSE" referencedColumnNames="ID"
+                                 referencedTableName="House"/>
+    </changeSet>
+    <changeSet id="11" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_apartment" baseTableName="Dweller_apartment_role"
+                                 constraintName="FK_DWELLER_APARTMENT_ROLE_ON_ID_APARTMENT" referencedColumnNames="ID"
+                                 referencedTableName="Apartment"/>
+    </changeSet>
+    <changeSet id="12" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_dweller" baseTableName="Dweller_apartment_role"
+                                 constraintName="FK_DWELLER_APARTMENT_ROLE_ON_ID_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="13" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_chat" baseTableName="Dweller_chat_role"
+                                 constraintName="FK_DWELLER_CHAT_ROLE_ON_ID_CHAT" referencedColumnNames="ID"
+                                 referencedTableName="TelegramChat"/>
+    </changeSet>
+    <changeSet id="14" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_dweller" baseTableName="Dweller_chat_role"
+                                 constraintName="FK_DWELLER_CHAT_ROLE_ON_ID_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="15" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_house" baseTableName="TelegramChat"
+                                 constraintName="FK_TELEGRAMCHAT_ON_ID_HOUSE" referencedColumnNames="ID"
+                                 referencedTableName="House"/>
+    </changeSet>
+    <changeSet id="16" author="butler">
+        <addForeignKeyConstraint baseColumnNames="dweller_id" baseTableName="Transport"
+                                 constraintName="FK_TRANSPORT_ON_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="17" author="butler">
+        <addForeignKeyConstraint baseColumnNames="dweller_id" baseTableName="User_command"
+                                 constraintName="FK_USER_COMMAND_ON_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="18" author="butler">
+        <addForeignKeyConstraint baseColumnNames="user_command_id" baseTableName="user_command_trace"
+                                 constraintName="FK_USER_COMMAND_TRACE_ON_USER_COMMAND" referencedColumnNames="ID"
+                                 referencedTableName="User_command"/>
+    </changeSet>
+</databaseChangeLog>
