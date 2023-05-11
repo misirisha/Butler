@@ -1,7 +1,9 @@
 package org.emerald.butler.entity;
 
+import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import io.jmix.core.Metadata;
@@ -23,6 +25,9 @@ import org.emerald.butler.entity.builder.HouseBuilder;
 @Table(name = "House")
 public class House extends StandardEntity {
 
+    @OneToMany(mappedBy = "house")
+    private Collection<Apartment> apartmens;
+
     @Column(name = "region")
     private String region;
 
@@ -37,6 +42,14 @@ public class House extends StandardEntity {
 
     public static HouseBuilder builder(Metadata metadata) {
         return new HouseBuilder(metadata);
+    }
+
+    public Collection<Apartment> getApartmens() {
+        return apartmens;
+    }
+
+    public void setApartmens(Collection<Apartment> apartmens) {
+        this.apartmens = apartmens;
     }
 
     @InstanceName

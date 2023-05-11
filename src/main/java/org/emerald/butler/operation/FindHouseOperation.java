@@ -6,11 +6,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.jmix.core.Metadata;
 import org.emerald.butler.component.Sender;
 import org.emerald.butler.component.UserCommandManager;
+import org.emerald.butler.entity.ChatRole;
 import org.emerald.butler.entity.Command;
+import org.emerald.butler.entity.DwellerChatRole;
 import org.emerald.butler.entity.House;
 import org.emerald.butler.entity.TelegramChat;
+import org.emerald.butler.repository.DwellerChatRoleRepository;
 import org.emerald.butler.repository.DwellerRepository;
 import org.emerald.butler.repository.HouseRepository;
 import org.emerald.butler.repository.TelegramChatRepository;
@@ -26,22 +30,28 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 
 @Component
 public class FindHouseOperation extends AbstractOperation {
+    private final HouseRepository houseRepository;
+    private final TelegramChatRepository telegramChatRepository;
+    private final DwellerChatRoleRepository dwellerChatRoleRepository;
+    private final Metadata metadata;
+    private TelegramChat telegramChat;
     private String region;
     private String city;
     private String street;
     private String number;
-    private final HouseRepository houseRepository;
-    private final TelegramChatRepository telegramChatRepository;
-
     @Autowired
     public FindHouseOperation(UserCommandManager userCommandManager,
                               Sender sender,
                               DwellerRepository dwellerRepository,
                               HouseRepository houseRepository,
-                              TelegramChatRepository telegramChatRepository) {
+                              TelegramChatRepository telegramChatRepository,
+                              DwellerChatRoleRepository dwellerChatRoleRepository,
+                              Metadata metadata) {
         super(userCommandManager, sender, dwellerRepository);
         this.houseRepository = houseRepository;
         this.telegramChatRepository = telegramChatRepository;
+        this.dwellerChatRoleRepository = dwellerChatRoleRepository;
+        this.metadata = metadata;
     }
 
     @Override
@@ -52,7 +62,7 @@ public class FindHouseOperation extends AbstractOperation {
                 "улица", this::streetInput,
                 "номер дома", this::numberInput,
                 "проверка адреса", this::addressChecking,
-                "поиск", this::changeAddress
+                "да или нет", this::yesOrNo
         );
     }
 
@@ -157,31 +167,56 @@ public class FindHouseOperation extends AbstractOperation {
                 if(chatOptional.isEmpty()){
                     result = "Ошибка системы";
                 }else {
-                    CreateChatInviteLink request = new CreateChatInviteLink();
-                    request.setChatId(chatOptional.orElseThrow().getTelegramChatId());
-                    request.setMemberLimit(1);
-                    ChatInviteLink link = sender.execute(request);
+                    telegramChat = chatOptional.orElseThrow();
                     result = "По адресу: " +
                             new Format("{}, {}, ул. {}, {}", this.region, this.city, this.street, this.number) +
                             "\n" +
-                            "был найден чат: \n" +
-                            link.getInviteLink();
+                            "был найден чат. Хотите зарегистрироваться в этом доме?";
                 }
             }
 
-            userCommandManager.updateProgress(context.userCommand, "поиск");
-            sender.send(result, context.update, addressCheckingMarkup());
+            userCommandManager.updateProgress(context.userCommand, "да или нет");
+            sender.send(result, context.update, yesOrNoMarkup());
         }
     }
 
-    private void changeAddress(Context context) {
-        if(context.text.equals("Изменить")){
-            userCommandManager.updateProgress(context.userCommand, "start");
-        }else if(context.text.equals("Отмена")){
+    private void yesOrNo(Context context) {
+        if(context.text.equals("Да")){
+            DwellerChatRole dwellerChatRole = DwellerChatRole.builder(metadata)
+                    .dweller(dwellerRepository.findByTelegramId(context.user.getId()).orElseThrow())
+                    .chat(telegramChat)
+                    .chatRole(ChatRole.DWELLER)
+                    .build();
+            dwellerChatRoleRepository.save(dwellerChatRole);
+
+            CreateChatInviteLink request = new CreateChatInviteLink();
+            request.setChatId(telegramChat.getTelegramChatId());
+            request.setMemberLimit(1);
+            ChatInviteLink link = sender.execute(request);
+
+            userCommandManager.clear(context.user);
+            sender.send(link.getInviteLink(), context.update);
+
+        }else if(context.text.equals("Нет")){
            onCancel(context);
+            userCommandManager.clear(context.user);
         } else{
             onError(context);
         }
+    }
+
+    private ReplyKeyboardMarkup yesOrNoMarkup(){
+        final ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
+        markup.setSelective(true);
+        markup.setResizeKeyboard(true);
+        markup.setOneTimeKeyboard(true);
+
+        final List<KeyboardRow> rows = List.of(
+                new KeyboardRow(new KeyboardButton("Да")),
+                new KeyboardRow(new KeyboardButton("Нет"))
+        );
+        markup.setKeyboard(new ArrayList<>(rows));
+        return markup;
     }
 
     private ReplyKeyboardMarkup addressCheckingMarkup() {

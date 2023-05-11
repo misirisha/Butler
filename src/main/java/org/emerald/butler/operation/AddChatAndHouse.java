@@ -17,9 +17,11 @@ import org.emerald.butler.repository.TelegramChatRepository;
 import org.emerald.butler.telegram.KeyboardRow;
 import org.emerald.butler.telegram.ReplyKeyboardMarkupBuilder;
 import org.emerald.butler.util.Format;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
+@Component
 public class AddChatAndHouse extends AbstractOperation {
     private String region;
     private String city;

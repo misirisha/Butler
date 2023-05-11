@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window"
+        xmlns:chart="http://jmix.io/schema/ui/charts"
+        caption="msg://popularityByRegionScreen.caption">
+
+    <layout expand="pie3DChart" spacing="true" margin="true">
+        <hbox spacing="true" align="MIDDLE_CENTER">
+            <comboBox id="modeBox"
+                      optionsEnum="org.emerald.butler.screen.charts.Mode"
+                      nullOptionVisible="false"
+                      align="MIDDLE_CENTER"
+                      caption="msg://combo-box.mode.caption"/>
+            <textField id="maxResultsField"
+                       datatype="int"
+                       caption="msg://text-field.max-results.caption"
+                       inputPrompt="msg://text-field.unlimited-results.caption"
+                       align="MIDDLE_CENTER"/>
+        </hbox>
+
+        <chart:pieChart id="pie3DChart"
+                        angle="40"
+                        depth3D="15"
+                        outlineAlpha="0.4"
+                        titleField="key" valueField="value"
+                        width="100%">
+            <chart:legend autoMargins="false"
+                          marginRight="80"
+                          markerType="CIRCLE"
+                          position="RIGHT"/>
+        </chart:pieChart>
+    </layout>
+</window>

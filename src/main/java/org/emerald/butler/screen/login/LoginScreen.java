@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -51,6 +52,9 @@ public class LoginScreen extends Screen {
     private LoginScreenSupport loginScreenSupport;
 
     @Autowired
+    private Environment environment;
+
+    @Autowired
     private JmixApp app;
 
     @Value("${ui.login.defaultUsername:}")
@@ -66,6 +70,12 @@ public class LoginScreen extends Screen {
         usernameField.focus();
         initLocalesField();
         initDefaultCredentials();
+    }
+
+    @Subscribe
+    private void onBeforeShow(BeforeShowEvent event) {
+        usernameField.setValue(environment.getProperty("ui.login.defaultUsername", ""));
+        passwordField.setValue(environment.getProperty("ui.login.defaultPassword", ""));
     }
 
     private void initLocalesField() {
