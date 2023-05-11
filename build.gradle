@@ -1,5 +1,5 @@
 plugins {
-    id 'io.jmix' version '1.5.1'
+    id 'io.jmix' version '1.4.3'
     id 'java'
     id("io.freefair.lombok") version "8.0.1"
 }
@@ -7,7 +7,7 @@ plugins {
 apply plugin: 'org.springframework.boot'
 
 jmix {
-    bomVersion = '1.5.1'
+    bomVersion = '1.4.3'
 }
 
 group = 'org.emerald.butler'
