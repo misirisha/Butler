@@ -8,7 +8,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 public abstract class Sender extends TelegramLongPollingBot {
     public void send(Format format, Update chatSource) {
@@ -26,13 +26,25 @@ public abstract class Sender extends TelegramLongPollingBot {
         });
     }
 
-    public void sendToChat(String text, Update chatSource, ReplyKeyboardMarkup markup) {
+    public void sendToChat(String text, Update chatSource, ReplyKeyboard markup) {
         Utils.silently(() -> {
             execute(toChatSendMessage(text, chatSource, markup));
         });
     }
 
-    public void send(Format format, Update chatSource, ReplyKeyboardMarkup markup) {
+    public void sendToOtherChat(Object text, Object chatId, ReplyKeyboard markup){
+        Utils.silently(() -> {
+            execute(toChatSendMessage(text.toString(), chatId, markup));
+        });
+    }
+
+    public void sendToOtherChat(Object text, Object chatId){
+        Utils.silently(() -> {
+            execute(toChatSendMessage(text.toString(), chatId));
+        });
+    }
+
+    public void send(Format format, Update chatSource, ReplyKeyboard markup) {
         send(format.get(), chatSource, markup);
     }
 
@@ -40,7 +52,7 @@ public abstract class Sender extends TelegramLongPollingBot {
         Utils.silently(() -> execute(toSendMessage(text, chatSource)));
     }
 
-    public void send(String text, Update chatSource, ReplyKeyboardMarkup markup) {
+    public void send(String text, Update chatSource, ReplyKeyboard markup) {
         Utils.silently(() -> execute(toSendMessage(text, chatSource, markup)));
     }
 
@@ -52,7 +64,7 @@ public abstract class Sender extends TelegramLongPollingBot {
         return toSendMessage(text, chatSource, null);
     }
 
-    private SendMessage toSendMessage(String text, Update chatSource, ReplyKeyboardMarkup markup) {
+    private SendMessage toSendMessage(String text, Update chatSource, ReplyKeyboard markup) {
         SendMessage message = new SendMessage();
         message.setText(text);
         message.setChatId(toChatId(chatSource));
@@ -69,7 +81,15 @@ public abstract class Sender extends TelegramLongPollingBot {
         return message;
     }
 
-    private SendMessage toChatSendMessage(String text, Update dataSource, ReplyKeyboardMarkup markup) {
+    private SendMessage toChatSendMessage(String text, Object chatId, ReplyKeyboard markup) {
+        SendMessage message = new SendMessage();
+        message.setText(text);
+        message.setChatId(chatId.toString());
+        message.setReplyMarkup(markup);
+
+        return message;
+    }
+    private SendMessage toChatSendMessage(String text, Update dataSource, ReplyKeyboard markup) {
         SendMessage message = new SendMessage();
         message.setText(text);
         message.setChatId(dataSource.getMessage().getChatId().toString());

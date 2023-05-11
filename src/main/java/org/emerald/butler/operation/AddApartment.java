@@ -7,6 +7,7 @@ import org.emerald.butler.component.UserCommandManager;
 import org.emerald.butler.entity.Apartment;
 import org.emerald.butler.entity.ApartmentRole;
 import org.emerald.butler.entity.Command;
+import org.emerald.butler.entity.Dweller;
 import org.emerald.butler.entity.DwellerApartmentRole;
 import org.emerald.butler.entity.DwellerChatRole;
 import org.emerald.butler.entity.House;
@@ -18,9 +19,13 @@ import org.emerald.butler.repository.DwellerRepository;
 import org.emerald.butler.repository.HouseRepository;
 import org.emerald.butler.repository.TelegramChatRepository;
 import org.emerald.butler.telegram.KeyboardRow;
+import org.emerald.butler.telegram.TelegramUtils;
+import org.emerald.butler.util.Format;
 import org.emerald.butler.util.NumericCheck;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
 import java.util.ArrayList;
@@ -28,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Component
@@ -39,6 +45,7 @@ public class AddApartment extends AbstractOperation {
     private final ApartmentRepository apartmentRepository;
     private final Metadata metadata;
     private House house;
+    private Apartment apartment;
     private Integer frontDoor;
     private Integer floor;
     private Integer number;
@@ -200,6 +207,7 @@ public class AddApartment extends AbstractOperation {
                     sender.send("Квартира сохранена", context.update);
 
                 }else {
+                    apartment = apartmentOptional.orElseThrow();
                     userCommandManager.updateProgress(context.userCommand, "да или нет");
                     sender.send("У этой квартиры уже есть владелец. Отправить ему заявку на добавление в качестве жителя?",
                             context.update, yesOrNoMarkup());
@@ -212,8 +220,19 @@ public class AddApartment extends AbstractOperation {
 
     private void yesOrNo(Context context) {
         if(context.text.equals("Да")){
-
-
+            Optional<DwellerApartmentRole> dwellerApartmentRoleOptional =
+                    dwellerApartmentRoleRepository.findByApartmentIdAndApartmentRole(apartment.getId(), ApartmentRole.OWNER.getId());
+            if(dwellerApartmentRoleOptional.isEmpty()){
+                userCommandManager.clear(context.user);
+                onError(context);
+                return;
+            }
+            Dweller owner = dwellerApartmentRoleOptional.get().getDweller();
+            userCommandManager.clear(context.user);
+            sender.sendToOtherChat(new Format("Пользователь {} хочет добавиться в квартиру {}, кв.{}", 
+                    context.user.getUserName(), 
+                    house.toString(), 
+                    apartment.getNumber()), owner.getTelegramId(), messageForOwnerMarkup(apartment.getId(),context.user.getId()));
 
         }else if(context.text.equals("Нет")) {
             userCommandManager.clear(context.user);
@@ -221,6 +240,20 @@ public class AddApartment extends AbstractOperation {
         }else {
             onError(context);
         }
+    }
+
+    private InlineKeyboardMarkup messageForOwnerMarkup(UUID apartmentId, Long dwellerTelegramId) {
+        Format approveFormat = new Format("add_to_apartment approve {} {} ",
+                apartmentId.toString(),
+                dwellerTelegramId.toString());
+        Format rejectFormat = new Format("add_to_apartment reject {} {}",
+                apartmentId.toString(),
+                dwellerTelegramId.toString());
+
+        return InlineKeyboardMarkup.builder()
+                .keyboardRow(List.of(TelegramUtils.createInlineButton("Добавить", approveFormat)))
+                .keyboardRow(List.of(TelegramUtils.createInlineButton("Не добавлять", rejectFormat)))
+                .build();
     }
 
 
