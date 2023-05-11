@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TelegramChatRepository extends JmixDataRepository<TelegramChat, Long> {
 
+    Optional<TelegramChat> findByTelegramChatId(String telegramChatId);
     Optional<TelegramChat> findByHouse(House house);
 
 }

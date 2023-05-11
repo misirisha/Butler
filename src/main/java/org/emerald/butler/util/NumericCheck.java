@@ -19,6 +19,14 @@ public class NumericCheck {
         return NUMERIC_PATTERN.matcher(value).matches();
     }
 
+    public boolean isInteger() {
+        if (Objects.isNull(value)) {
+            return false;
+        }
+
+        return LONG_PATTERN.matcher(value).matches();
+    }
+
     public boolean isLong() {
         if (Objects.isNull(value)) {
             return false;

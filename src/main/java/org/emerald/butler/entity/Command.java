@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 public enum Command {
     ABOUT("1", "Информация обо мне", "/about", Set.of(CommandType.PRIVATE)),
     FIND_HOUSE("2", "Найти дом", "/findhouse", Set.of(CommandType.PRIVATE)),
-    ADD_CHAT_AND_HOUSE("3", "Добавить чат и дом", "/addhouse", Set.of(CommandType.GROUP, CommandType.SUPERGROUP));
+    ADD_CHAT_AND_HOUSE("3", "Добавить чат и дом", "/addhouse", Set.of(CommandType.GROUP, CommandType.SUPERGROUP)),
+    ADD_APARTMENT("4", "Добавить квартиру", "/addapartment", Set.of(CommandType.PRIVATE, CommandType.GROUP, CommandType.SUPERGROUP));
 
     private final String id;
     private final String text;

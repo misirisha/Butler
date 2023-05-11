@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import io.jmix.core.Messages;
+import io.jmix.core.Metadata;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -15,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.emerald.butler.entity.builder.DwellerApartmentRoleBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,6 +37,10 @@ public class DwellerApartmentRole extends StandardEntity {
 
     @Column(name = "apartment_role")
     private String apartmentRole;
+
+    public static DwellerApartmentRoleBuilder builder(Metadata metadata) {
+        return new DwellerApartmentRoleBuilder(metadata);
+    }
 
     public ApartmentRole getApartmentRole() {
         return apartmentRole == null ? null : ApartmentRole.fromId(apartmentRole);

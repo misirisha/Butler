@@ -22,7 +22,13 @@ public abstract class Sender extends TelegramLongPollingBot {
 
     public void sendToChat(String text, Update chatSource) {
         Utils.silently(() -> {
-            execute(toSendMessage(text, chatSource.getMessage().getChatId()));
+            execute(toChatSendMessage(text, chatSource.getMessage().getChatId()));
+        });
+    }
+
+    public void sendToChat(String text, Update chatSource, ReplyKeyboardMarkup markup) {
+        Utils.silently(() -> {
+            execute(toChatSendMessage(text, chatSource, markup));
         });
     }
 
@@ -54,10 +60,22 @@ public abstract class Sender extends TelegramLongPollingBot {
         return message;
     }
 
-    private SendMessage toSendMessage(String text, Object chatId) {
+    private SendMessage toChatSendMessage(String text, Object chatId) {
         SendMessage message = new SendMessage();
         message.setText(text);
         message.setChatId(chatId.toString());
+        message.setReplyMarkup(null);
+
+        return message;
+    }
+
+    private SendMessage toChatSendMessage(String text, Update dataSource, ReplyKeyboardMarkup markup) {
+        SendMessage message = new SendMessage();
+        message.setText(text);
+        message.setChatId(dataSource.getMessage().getChatId().toString());
+        message.setReplyMarkup(markup);
+        message.setReplyToMessageId(dataSource.getMessage().getMessageId());
+
         return message;
     }
 }
