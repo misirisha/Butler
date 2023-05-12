@@ -51,9 +51,9 @@ public class PopularityByCityScreen extends Screen {
     private static final int MAX_APARTMENT_NUMBER = 250;
     private static final int MAX_FLOOR_NUMBER = 15;
     private static final String STREET = "ул. Блиновская";
-    private static final int MAX_APARTMENTS = 100;
+    private static final int MAX_APARTMENTS = 10;
     private static final int MAX_DWELLERS = 6;
-    private static final int MAX_HOUSES = 100;
+    private static final int MAX_HOUSES = 10;
 
     private final Random random = new Random();
 

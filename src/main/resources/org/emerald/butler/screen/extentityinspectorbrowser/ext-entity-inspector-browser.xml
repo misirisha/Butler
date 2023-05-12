@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window"
+        caption="msg://io.jmix.datatoolsui.screen.entityinspector/browserCaption"
+        extends="io/jmix/datatoolsui/screen/entityinspector/entity-inspector-browser.xml">
+    <layout>
+        <hbox id="lookupBox">
+            <comboBox id="showMode" visible="false"/>
+        </hbox>
+    </layout>
+</window>

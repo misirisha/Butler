@@ -10,7 +10,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import io.jmix.core.DeletePolicy;
 import io.jmix.core.Metadata;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -32,6 +34,7 @@ public class UserCommand extends StandardEntity {
     @OneToMany(mappedBy = "userCommand", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<UserCommandTrace> traces;
 
+    @OnDelete(DeletePolicy.CASCADE)
     @JoinColumn(name = "dweller_id")
     @OneToOne(fetch = FetchType.LAZY)
     private Dweller dweller;
