@@ -9,7 +9,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import io.jmix.core.DeletePolicy;
 import io.jmix.core.Metadata;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,7 @@ import org.emerald.butler.entity.builder.ApartmentBuilder;
 @Table(name = "Apartment")
 public class Apartment extends StandardEntity {
 
+    @OnDelete(DeletePolicy.CASCADE)
     @JoinColumn(name = "id_house")
     @ManyToOne(fetch = FetchType.LAZY)
     private House house;

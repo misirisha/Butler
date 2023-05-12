@@ -9,8 +9,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import io.jmix.core.DeletePolicy;
 import io.jmix.core.Messages;
 import io.jmix.core.Metadata;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -32,6 +34,7 @@ public class TelegramChat extends StandardEntity {
     @OneToMany(mappedBy = "chat")
     private Collection<DwellerChatRole> dwellers;
 
+    @OnDelete(DeletePolicy.CASCADE)
     @JoinColumn(name = "id_house")
     @OneToOne(fetch = FetchType.LAZY)
     private House house;

@@ -8,7 +8,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import io.jmix.core.DeletePolicy;
 import io.jmix.core.Metadata;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.AllArgsConstructor;
@@ -29,6 +31,7 @@ public class Transport extends StandardEntity {
     @Column(name = "order_")
     private Long order;
 
+    @OnDelete(DeletePolicy.CASCADE)
     @JoinColumn(name = "dweller_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Dweller dweller;

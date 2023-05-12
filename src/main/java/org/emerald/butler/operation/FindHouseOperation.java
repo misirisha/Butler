@@ -159,6 +159,9 @@ public class FindHouseOperation extends AbstractOperation {
                         new Format("{}, {}, ул. {}, {}", this.region, this.city, this.street, this.number) +
                         "\n" +
                         "чат не найден";
+                userCommandManager.clear(context.user);
+                sender.send(result, context.update, yesOrNoMarkup());
+                return;
 
             }else {
                 House house = houseOptional.orElseThrow();
@@ -189,13 +192,19 @@ public class FindHouseOperation extends AbstractOperation {
                     .build();
             dwellerChatRoleRepository.save(dwellerChatRole);
 
-            CreateChatInviteLink request = new CreateChatInviteLink();
-            request.setChatId(telegramChat.getTelegramChatId());
-            request.setMemberLimit(1);
-            ChatInviteLink link = sender.execute(request);
+            try{
+                CreateChatInviteLink request = new CreateChatInviteLink();
+                request.setChatId(telegramChat.getTelegramChatId());
+                request.setMemberLimit(1);
+                ChatInviteLink link = sender.execute(request);
 
-            userCommandManager.clear(context.user);
-            sender.send(link.getInviteLink(), context.update);
+                userCommandManager.clear(context.user);
+                sender.send(link.getInviteLink(), context.update);
+            }catch (RuntimeException ex){
+                sender.send("Ошибка", context.update);
+            }
+
+
 
         }else if(context.text.equals("Нет")){
            onCancel(context);
