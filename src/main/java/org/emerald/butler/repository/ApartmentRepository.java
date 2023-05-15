@@ -11,5 +11,7 @@ import java.util.UUID;
 public interface ApartmentRepository extends JmixDataRepository<Apartment, Long> {
     Optional<Apartment> findByHouseIdAndFrontDoorAndFloorAndNumber(UUID idHouse, Integer frontDoor, Integer floor, Integer number);
 
+    Optional<Apartment> findByHouseIdAndNumber(UUID idHouse, Integer number);
+
     Optional<Apartment> findById(UUID id);
 }

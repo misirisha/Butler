@@ -124,11 +124,12 @@ public class AddApartment extends AbstractOperation {
             String[] address = context.update.getMessage().getText().split(",");
             if(address.length == 4){
                 for (int i = 0; i<address.length; i++){
-                    address[i].trim();
+                    address[i] = address[i].trim();
                 }
                 Optional<House> houseOptional = houseRepository
                         .findByRegionAndCityAndStreetAndNumber(address[0], address[1],address[2],address[3]);
                 if(houseOptional.isPresent()){
+                    house = houseOptional.get();
                     userCommandManager.updateProgress(context.userCommand, "подъезд");
                     sender.send("Введите номер подъезда", context.update, startMarkup());
                 }else{

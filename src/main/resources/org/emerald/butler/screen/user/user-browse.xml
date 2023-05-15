@@ -68,7 +68,6 @@
                         <action id="usersTable.changePassword"/>
                         <action id="usersTable.resetPassword"/>
                         <action id="usersTable.resetRememberMeToken"/>
-                        <action id="usersTable.showUserSubstitutions"/>
                     </actions>
                 </popupButton>
             </buttonsPanel>

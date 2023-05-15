@@ -57,7 +57,7 @@ public abstract class Sender extends TelegramLongPollingBot {
     }
 
     private String toChatId(Update update) {
-        return update.getMessage().getFrom().getId().toString();
+        return update.getMessage().getChatId().toString();
     }
 
     private SendMessage toSendMessage(String text, Update chatSource) {

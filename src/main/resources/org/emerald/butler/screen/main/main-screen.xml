@@ -3,7 +3,7 @@
 
     <layout>
         <cssLayout id="horizontalWrap" stylename="jmix-drawer-layout">
-            <drawer id="drawer" expandOnHover="true">
+            <drawer id="drawer">
                 <cssLayout id="appTitleBox" stylename="jmix-drawer-header" width="100%">
                     <image id="logoImage" stylename="app-icon" scaleMode="SCALE_DOWN">
                         <resource>

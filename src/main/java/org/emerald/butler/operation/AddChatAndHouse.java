@@ -166,8 +166,8 @@ public class AddChatAndHouse extends AbstractOperation {
                     .build();
             telegramChatRepository.save(telegramChat);
 
+            userCommandManager.clear(context.user);
             sender.sendToChat("Успешно", context.update);
-            onCancel(context);
 
         } else if (context.text.equals("Нет")){
             onCancel(context);
