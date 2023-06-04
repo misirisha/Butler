@@ -233,7 +233,9 @@ public class AddApartment extends AbstractOperation {
             sender.sendToOtherChat(new Format("Пользователь {} хочет добавиться в квартиру {}, кв.{}", 
                     context.user.getUserName(), 
                     house.toString(), 
-                    apartment.getNumber()), owner.getTelegramId(), messageForOwnerMarkup(apartment.getId(),context.user.getId()));
+                    apartment.getNumber()),
+                    owner.getTelegramId(),
+                    messageForOwnerMarkup(apartment.getId(),context.user.getId()));
 
         }else if(context.text.equals("Нет")) {
             userCommandManager.clear(context.user);
@@ -244,10 +246,10 @@ public class AddApartment extends AbstractOperation {
     }
 
     private InlineKeyboardMarkup messageForOwnerMarkup(UUID apartmentId, Long dwellerTelegramId) {
-        Format approveFormat = new Format("add_to_apartment approve {} {} ",
+        Format approveFormat = new Format("a_t_a a {} {} ",
                 apartmentId.toString(),
                 dwellerTelegramId.toString());
-        Format rejectFormat = new Format("add_to_apartment reject {} {}",
+        Format rejectFormat = new Format("a_t_a r {} {}",
                 apartmentId.toString(),
                 dwellerTelegramId.toString());
 

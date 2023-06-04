@@ -60,8 +60,11 @@ public class TelegramBot extends Sender {
 
     private void updateWithCallBack(Update update) {
         CallbackQuery query = update.getCallbackQuery();
-        if (query.getData().startsWith("add_to_apartment")) {
-            String[] parts = query.getData().replaceAll("add_to_apartment", "").split(" ");
+        //a_t_a = add_to_apartment
+        //a = approve
+        //r = rejected
+        if (query.getData().startsWith("a_t_a")) {
+            String[] parts = query.getData().replaceAll("a_t_a", "").split(" ");
             String result = parts[0].trim();
             String apartmentId = parts[1].trim();
             String dwellerId = parts[2].trim();
@@ -74,7 +77,7 @@ public class TelegramBot extends Sender {
                 return;
             }
 
-            if(result.equals("approve")){
+            if(result.equals("a")){
                 DwellerApartmentRole notSaved = DwellerApartmentRole.builder(metadata)
                         .dweller(dwellerOptional.orElseThrow())
                         .apartment(apartmentOptional.orElseThrow())
