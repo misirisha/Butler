@@ -16,7 +16,6 @@ import org.emerald.butler.operation.OperationFactory;
 import org.emerald.butler.repository.ApartmentRepository;
 import org.emerald.butler.repository.DwellerApartmentRoleRepository;
 import org.emerald.butler.repository.DwellerRepository;
-import org.emerald.butler.util.Format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -77,7 +76,7 @@ public class TelegramBot extends Sender {
                 return;
             }
 
-            if(result.equals("a")){
+            if (result.equals("a")) {
                 DwellerApartmentRole notSaved = DwellerApartmentRole.builder(metadata)
                         .dweller(dwellerOptional.orElseThrow())
                         .apartment(apartmentOptional.orElseThrow())
@@ -86,7 +85,7 @@ public class TelegramBot extends Sender {
                 dwellerApartmentRoleRepository.save(notSaved);
                 //TODO: Сделать более понятное сообщение. Добавить адрес квартиры, в которую добавлен пользователь
                 sendToOtherChat("Заявка на добавление одобрена", dwellerId);
-            } else if(result.equals("reject")){
+            } else if (result.equals("reject")) {
                 sendToOtherChat("Заявка на добавление не одобрена", dwellerId);
             }
         }
@@ -100,20 +99,7 @@ public class TelegramBot extends Sender {
             return;
         }
 
-        long chatId = update.getMessage().getChatId();
-        User from = update.getMessage().getFrom();
-        Optional<Dweller> dwellerOptional = dwellerRepository.findByTelegramId(from.getId());
-        if (dwellerOptional.isEmpty()) {
-            Dweller notSaved = Dweller.builder(metadata)
-                    .telegramId(from.getId())
-                    .firstName(from.getFirstName())
-                    .lastName(from.getLastName())
-                    .userName(from.getUserName())
-                    .build();
-
-            dwellerRepository.save(notSaved);
-            log.debug("Created dweller for a user. User' username: {}", from.getUserName());
-        }
+        ensureDwellerExists(update);
 
         operationFactory.getOperation(update).ifPresentOrElse(
                 existingOperation -> existingOperation.doOperation(update),
@@ -127,6 +113,20 @@ public class TelegramBot extends Sender {
             operationOptional.get().doOperation(update);
         } else {
             send("Неизвестная команда", update);
+        }
+    }
+
+    private void ensureDwellerExists(Update update) {
+        User from = update.getMessage().getFrom();
+        Optional<Dweller> dwellerOptional = dwellerRepository.findByTelegramId(from.getId());
+        if (dwellerOptional.isEmpty()) {
+            final Dweller dweller = metadata.create(Dweller.class);
+            dweller.setTelegramId(from.getId());
+            dweller.setFirstName(from.getFirstName());
+            dweller.setLastName(from.getLastName());
+            dweller.setUserName(from.getUserName());
+            dwellerRepository.save(dweller);
+            log.debug("Created dweller for a user. User' username: {}", from.getUserName());
         }
     }
 }

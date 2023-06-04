@@ -4,16 +4,30 @@
     <moduleSettings>
       <entry key="butler.main">
         <ModuleSettings>
+          <option name="dataStoreOptionsV2">
+            <map>
+              <entry key="main">
+                <value>
+                  <DataStoreSettingsV2>
+                    <option name="generateDdlType" value="CREATE_AND_UPDATE" />
+                    <option name="nameLengthMode" value="ORACLE" />
+                    <option name="supportedTypes">
+                      <option value="postgres" />
+                    </option>
+                  </DataStoreSettingsV2>
+                </value>
+              </entry>
+            </map>
+          </option>
+        </ModuleSettings>
+      </entry>
+      <entry key="org.emerald.butler.butler.main">
+        <ModuleSettings>
           <option name="dataStoreOptions">
             <map>
               <entry key="main">
                 <value>
-                  <DataStoreSettings>
-                    <option name="generateDdlType" value="CREATE_AND_UPDATE" />
-                    <option name="supportedTypes">
-                      <option value="postgres" />
-                    </option>
-                  </DataStoreSettings>
+                  <DataStoreSettings />
                 </value>
               </entry>
             </map>

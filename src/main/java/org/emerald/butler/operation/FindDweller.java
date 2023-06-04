@@ -8,7 +8,6 @@ import org.emerald.butler.entity.Command;
 import org.emerald.butler.entity.DwellerApartmentRole;
 import org.emerald.butler.entity.DwellerChatRole;
 import org.emerald.butler.entity.House;
-import org.emerald.butler.entity.TelegramChat;
 import org.emerald.butler.repository.ApartmentRepository;
 import org.emerald.butler.repository.DwellerApartmentRoleRepository;
 import org.emerald.butler.repository.DwellerChatRoleRepository;

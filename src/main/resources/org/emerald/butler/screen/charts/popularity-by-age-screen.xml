@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window"
+        xmlns:chart="http://jmix.io/schema/ui/charts"
+        caption="msg://popularityByAge.caption">
+    <layout expand="press">
+        <groupBox caption="Диапазоны" collapsable="true" stylename="collapsible" expand="rangesBox" width="100%" outerMargin="true,false,true,false">
+            <button id="addRangeBtn" caption="Добавить" align="MIDDLE_CENTER" stylename="friendly"/>
+            <vbox id="rangesBox" width="100%" spacing="true" margin="true,false,true,false"/>
+        </groupBox>
+
+        <vbox expand="launchBtn" width="100%" margin="true,false,true,false">
+            <button id="launchBtn" caption="Сформировать" align="MIDDLE_CENTER"/>
+        </vbox>
+
+        <chart:pieChart id="pie3DChart"
+                        angle="40"
+                        depth3D="15"
+                        outlineAlpha="0.4"
+                        titleField="key" valueField="value"
+                        visible="false"
+                        width="100%">
+            <chart:legend autoMargins="false"
+                          marginRight="80"
+                          markerType="CIRCLE"
+                          position="RIGHT"/>
+        </chart:pieChart>
+
+        <label id="press" value=""/>
+    </layout>
+</window>

@@ -1,9 +1,7 @@
 package org.emerald.butler.operation;
 
-
 import io.jmix.core.Metadata;
-import org.emerald.butler.component.Sender;
-import org.emerald.butler.component.UserCommandManager;
+import lombok.RequiredArgsConstructor;
 import org.emerald.butler.entity.Apartment;
 import org.emerald.butler.entity.ApartmentRole;
 import org.emerald.butler.entity.Command;
@@ -15,7 +13,6 @@ import org.emerald.butler.entity.TelegramChat;
 import org.emerald.butler.repository.ApartmentRepository;
 import org.emerald.butler.repository.DwellerApartmentRoleRepository;
 import org.emerald.butler.repository.DwellerChatRoleRepository;
-import org.emerald.butler.repository.DwellerRepository;
 import org.emerald.butler.repository.HouseRepository;
 import org.emerald.butler.repository.TelegramChatRepository;
 import org.emerald.butler.telegram.KeyboardRow;
@@ -25,7 +22,6 @@ import org.emerald.butler.util.NumericCheck;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
 import java.util.ArrayList;
@@ -36,6 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+@RequiredArgsConstructor
 @Component
 public class AddApartment extends AbstractOperation {
     private final HouseRepository houseRepository;
@@ -44,29 +41,12 @@ public class AddApartment extends AbstractOperation {
     private final DwellerApartmentRoleRepository dwellerApartmentRoleRepository;
     private final ApartmentRepository apartmentRepository;
     private final Metadata metadata;
+
     private House house;
     private Apartment apartment;
     private Integer frontDoor;
     private Integer floor;
     private Integer number;
-
-    public AddApartment(UserCommandManager userCommandManager,
-                        Sender sender,
-                        DwellerRepository dwellerRepository,
-                        HouseRepository houseRepository,
-                        TelegramChatRepository telegramChatRepository,
-                        DwellerChatRoleRepository dwellerChatRoleRepository,
-                        DwellerApartmentRoleRepository dwellerApartmentRoleRepository,
-                        ApartmentRepository apartmentRepository,
-                        Metadata metadata) {
-        super(userCommandManager, sender, dwellerRepository);
-        this.houseRepository = houseRepository;
-        this.telegramChatRepository = telegramChatRepository;
-        this.dwellerChatRoleRepository = dwellerChatRoleRepository;
-        this.dwellerApartmentRoleRepository = dwellerApartmentRoleRepository;
-        this.apartmentRepository = apartmentRepository;
-        this.metadata = metadata;
-    }
 
     @Override
     protected Map<String, Consumer<Context>> getProgressesMap() {
@@ -220,10 +200,10 @@ public class AddApartment extends AbstractOperation {
     }
 
     private void yesOrNo(Context context) {
-        if(context.text.equals("Да")){
+        if (context.text.equals("Да")) {
             Optional<DwellerApartmentRole> dwellerApartmentRoleOptional =
                     dwellerApartmentRoleRepository.findByApartmentIdAndApartmentRole(apartment.getId(), ApartmentRole.OWNER.getId());
-            if(dwellerApartmentRoleOptional.isEmpty()){
+            if (dwellerApartmentRoleOptional.isEmpty()) {
                 userCommandManager.clear(context.user);
                 onError(context);
                 return;
@@ -237,10 +217,10 @@ public class AddApartment extends AbstractOperation {
                     owner.getTelegramId(),
                     messageForOwnerMarkup(apartment.getId(),context.user.getId()));
 
-        }else if(context.text.equals("Нет")) {
+        } else if(context.text.equals("Нет")) {
             userCommandManager.clear(context.user);
             onCancel(context);
-        }else {
+        } else {
             onError(context);
         }
     }
@@ -309,7 +289,7 @@ public class AddApartment extends AbstractOperation {
 
         final List<KeyboardRow> rows = new ArrayList<>();
 
-        for (String house: houses){
+        for (String house : houses) {
             rows.add(new KeyboardRow(new KeyboardButton(house)));
         }
         rows.add(new KeyboardRow(new KeyboardButton("Отмена")));
@@ -327,5 +307,4 @@ public class AddApartment extends AbstractOperation {
     public boolean supports(Command command) {
         return command == Command.ADD_APARTMENT;
     }
-
 }

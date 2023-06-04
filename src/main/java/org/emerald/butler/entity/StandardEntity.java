@@ -5,7 +5,9 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+import io.jmix.core.Messages;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,4 +24,9 @@ public abstract class StandardEntity {
     @Column(name = "ID")
     @JmixGeneratedValue
     protected UUID id;
+
+    @InstanceName
+    public String getInstanceName(Messages messages) {
+        return messages.getMessage(getClass(), getClass().getSimpleName());
+    }
 }

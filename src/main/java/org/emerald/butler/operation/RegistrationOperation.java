@@ -1,48 +1,49 @@
 package org.emerald.butler.operation;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableMap;
 import io.jmix.core.Metadata;
-import org.emerald.butler.component.Sender;
-import org.emerald.butler.component.UserCommandManager;
+import lombok.RequiredArgsConstructor;
+import org.emerald.butler.Constant;
 import org.emerald.butler.entity.Command;
 import org.emerald.butler.entity.Dweller;
 import org.emerald.butler.entity.Transport;
-import org.emerald.butler.repository.DwellerRepository;
 import org.emerald.butler.repository.TransportJmixRepository;
+import org.emerald.butler.service.DwellerService;
 import org.emerald.butler.service.TransportService;
 import org.emerald.butler.telegram.KeyboardRow;
 import org.emerald.butler.telegram.ReplyKeyboardMarkupBuilder;
 import org.emerald.butler.util.Format;
 import org.emerald.butler.util.NumericCheck;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
+@RequiredArgsConstructor
 @Component
 public class RegistrationOperation extends AbstractOperation {
+    private final Map<Supplier<? extends ReplyKeyboard>, Consumer<Context>> MARKUP_TO_HANDLER =
+            new ImmutableMap.Builder<Supplier<? extends ReplyKeyboard>, Consumer<Context>>()
+                    .put(this::startMarkup, this::infoAboutMe)
+                    .put(this::transportManagementMarkup, this::onTransportManagement)
+                    .put(this::dataMenuMarkup, this::onDataMenu)
+                    .put(this::birthDateMenuMarkup, this::onBirthDateMenu)
+                    .put(this::metersDataMarkup, this::onMetersData)
+                    .build();
+
     private final Metadata metadata;
     private final TransportService transportService;
     private final TransportJmixRepository transportJmixRepository;
-
-    @Autowired
-    public RegistrationOperation(UserCommandManager userCommandManager,
-                                 Sender sender,
-                                 DwellerRepository dwellerRepository,
-                                 TransportService transportService,
-                                 TransportJmixRepository transportJmixRepository,
-                                 Metadata metadata) {
-        super(userCommandManager, sender, dwellerRepository);
-        this.transportService = transportService;
-        this.transportJmixRepository = transportJmixRepository;
-        this.metadata = metadata;
-    }
+    private final DwellerService dwellerService;
 
     @Override
     public Command getCommand() {
@@ -56,14 +57,19 @@ public class RegistrationOperation extends AbstractOperation {
 
     @Override
     protected Map<String, Consumer<Context>> getProgressesMap() {
-        return Map.of(
-                "start", this::onStart,
-                "обо мне", this::infoAboutMe,
-                "управление транспортом", this::onTransportManagement,
-                "добавить транспорт", this::onAddTransport,
-                "внутри списка транспорта", this::updateListTransports,
-                "удалить транспорт", this::onDeleteTransport
-        );
+        return new ImmutableMap.Builder<String, Consumer<Context>>()
+                .put("start", this::onStart)
+                .put("обо мне", this::infoAboutMe)
+                .put("управление транспортом", this::onTransportManagement)
+                .put("добавить транспорт", this::onAddTransport)
+                .put("внутри списка транспорта", this::updateListTransports)
+                .put("удалить транспорт", this::onDeleteTransport)
+                .put("меню данных", this::onDataMenu)
+                .put("меню даты рождения", this::onBirthDateMenu)
+                .put("ввод даты рождения", this::onSetupBirthDate)
+                .put("меню показаний счетчиков", this::onMetersData)
+                .put("выбор квартиры для показаний счетчиков", this::onApartmentPickup)
+                .build();
     }
 
     private void onStart(Context context) {
@@ -78,7 +84,8 @@ public class RegistrationOperation extends AbstractOperation {
                 .oneTimeKeyboard(true)
                 .keyboard(List.of(
                         new KeyboardRow(new KeyboardButton("Автомобили")),
-                        new KeyboardRow(new KeyboardButton("Отмена"))
+                        new KeyboardRow(new KeyboardButton("Данные")),
+                        new KeyboardRow(new KeyboardButton(Constant.CANCEL))
                 ))
                 .build();
     }
@@ -87,9 +94,12 @@ public class RegistrationOperation extends AbstractOperation {
         if (context.text.equals("Автомобили")) {
             userCommandManager.updateProgress(context.userCommand, "управление транспортом");
             sender.send("Выберите следующее действие", context.update, transportManagementMarkup());
-        } else if (context.text.equals("Отмена")){
+        } else if (context.text.equals("Данные")) {
+            userCommandManager.updateProgress(context.userCommand, "меню данных");
+            sender.send("Выберите следующее действие", context.update, dataMenuMarkup());
+        } else if (context.text.equals(Constant.CANCEL)){
             onCancel(context);
-        } else{
+        } else {
             onError(context);
         }
     }
@@ -103,8 +113,8 @@ public class RegistrationOperation extends AbstractOperation {
         final List<KeyboardRow> rows = List.of(
                 new KeyboardRow(new KeyboardButton("Список")),
                 new KeyboardRow(new KeyboardButton("Добавить")),
-                new KeyboardRow(new KeyboardButton("Назад")),
-                new KeyboardRow(new KeyboardButton("Отмена"))
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
         );
         markup.setKeyboard(new ArrayList<>(rows));
         return markup;
@@ -129,10 +139,10 @@ public class RegistrationOperation extends AbstractOperation {
         } else if (context.text.equals("Добавить")) {
             userCommandManager.updateProgress(context.userCommand, "добавить транспорт");
             sender.send("Введите номер машины", context.update, defaultMarkup());
-        } else if (context.text.equals("Назад")) {
+        } else if (context.text.equals(Constant.BACK)) {
             onBack(context);
             sender.send("Выберите следующее действие", context.update, startMarkup());
-        } else if (context.text.equals("Отмена")) {
+        } else if (context.text.equals(Constant.CANCEL)) {
             onCancel(context);
         } else {
             onError(context);
@@ -141,10 +151,10 @@ public class RegistrationOperation extends AbstractOperation {
 
     //TODO: проверка соответсвия вводимого номера машины ГОСТу
     private void onAddTransport(Context context) {
-        if (context.text.equals("Назад")) {
+        if (context.text.equals(Constant.BACK)) {
             onBack(context);
             sender.send("Выберите следующее действие", context.update, transportManagementMarkup());
-        } else if (context.text.equals("Отмена")) {
+        } else if (context.text.equals(Constant.CANCEL)) {
             onCancel(context);
         } else {
             Optional<Dweller> dwellerOptional = dwellerRepository.findByTelegramId(context.user.getId());
@@ -177,10 +187,10 @@ public class RegistrationOperation extends AbstractOperation {
         } else if (context.text.equals("Добавить")) {
             userCommandManager.updateProgress(context.userCommand, "добавить транспорт");
             sender.send("Введите номер машины", context.update, defaultMarkup());
-        } else if (context.text.equals("Назад")) {
+        } else if (context.text.equals(Constant.BACK)) {
             onBack(context);
             sender.send("Выберите следующее действие", context.update, transportManagementMarkup());
-        } else if (context.text.equals("Отмена")) {
+        } else if (context.text.equals(Constant.CANCEL)) {
             onCancel(context);
         } else {
             onError(context);
@@ -196,18 +206,18 @@ public class RegistrationOperation extends AbstractOperation {
         final List<KeyboardRow> rows = List.of(
                 new KeyboardRow(new KeyboardButton("Удалить")),
                 new KeyboardRow(new KeyboardButton("Добавить")),
-                new KeyboardRow(new KeyboardButton("Назад")),
-                new KeyboardRow(new KeyboardButton("Отмена"))
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
         );
         markup.setKeyboard(new ArrayList<>(rows));
         return markup;
     }
 
     private void onDeleteTransport(Context context) {
-        if (context.text.equals("Назад")) {
+        if (context.text.equals(Constant.BACK)) {
             onBack(context);
             sender.send("Выберите следующее действие", context.update, transportManagementMarkup());
-        } else if (context.text.equals("Отмена")) {
+        } else if (context.text.equals(Constant.CANCEL)) {
             onCancel(context);
         } else {
             Optional<Dweller> dwellerOptional = dwellerRepository.findByTelegramId(context.user.getId());
@@ -257,16 +267,158 @@ public class RegistrationOperation extends AbstractOperation {
         markup.setOneTimeKeyboard(true);
 
         final List<KeyboardRow> rows = List.of(
-                new KeyboardRow(new KeyboardButton("Назад")),
-                new KeyboardRow(new KeyboardButton("Отмена"))
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
         );
         markup.setKeyboard(new ArrayList<>(rows));
         return markup;
     }
 
+    private ReplyKeyboardMarkup dataMenuMarkup() {
+        return markup(List.of(
+                new KeyboardRow(new KeyboardButton("Дата рождения")),
+                //new KeyboardRow(new KeyboardButton("Показания счетчиков")),
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
+        ));
+    }
 
-    @Override
-    public String toString() {
-        return "RegistrationOperation";
+    private void onDataMenu(Context context) {
+        if (defaultHandle(context).isHandled()) {
+            return;
+        }
+
+        if (context.text.equals(Constant.BACK)) {
+            onBack(context);
+            sender.send("Выберите следующее действие", context.update, startMarkup());
+        } else if (context.text.equals("Дата рождения")) {
+            final String message = dwellerService.findBirthDate(context)
+                    .map(birthDate -> "Указанная дата рождения: " + birthDate)
+                    .orElse("Ваша дата рождения не указана");
+
+            userCommandManager.updateProgress(context.userCommand, "меню даты рождения");
+            sender.send(message, context.update, birthDateMenuMarkup());
+        } else if (context.text.equals("Показания счетчиков")) {
+            userCommandManager.updateProgress(context.userCommand, "выбор квартиры для показаний счетчиков");
+            sender.send("Выберите квартиру", context.update, pickupApartmentMarkup(context));
+        } else {
+            onError(context);
+        }
+    }
+
+    private ReplyKeyboardMarkup pickupApartmentMarkup(Context context) {
+        final Collection<Integer> apartments = dwellerService.getApartmentsNumbers(context);
+        final List<KeyboardRow> rows = new ArrayList<>();
+        for (Integer apartment : apartments) {
+            rows.add(new KeyboardRow(new KeyboardButton(apartment.toString())));
+        }
+        rows.add(new KeyboardRow(new KeyboardButton(Constant.BACK)));
+        rows.add(new KeyboardRow(new KeyboardButton(Constant.CANCEL)));
+        return markup(rows);
+    }
+
+    private ReplyKeyboardMarkup birthDateMenuMarkup() {
+        return markup(List.of(
+                new KeyboardRow(new KeyboardButton("Указать")),
+                new KeyboardRow(new KeyboardButton("Удалить")),
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
+        ));
+    }
+
+    private void onBirthDateMenu(Context context) {
+        if (defaultHandle(context).isHandled()) {
+            return;
+        }
+
+        if (context.text.equals(Constant.BACK)) {
+            onBack(context);
+            sender.send("Выберите следующее действие", context.update, dataMenuMarkup());
+        } else if (context.text.equals("Указать")) {
+            userCommandManager.updateProgress(context.userCommand, "ввод даты рождения");
+            sender.send("Введите вашу дату рождения. Пример: 25.08.2022, либо 25 08 2022", context.update, defaultMarkup());
+        } else if (context.text.equals("Удалить")) {
+            dwellerService.clearBirthDate(context);
+            sender.send("Дата рождения удалена", context.update, birthDateMenuMarkup());
+        } else {
+            onError(context);
+        }
+    }
+
+    private void onSetupBirthDate(Context context) {
+        if (context.text.equals(Constant.BACK)) {
+            onBack(context);
+            sender.send("Выберите следующее действие", context.update, birthDateMenuMarkup());
+        } else if (context.text.equals(Constant.CANCEL)) {
+            onCancel(context);
+        } else {
+            final Optional<LocalDate> optionalBirthDate = dwellerService.parse(context.text);
+            if (optionalBirthDate.isEmpty()) {
+                sender.send("Формат некорректен. Попробуйте ещё раз", context.update, defaultMarkup());
+                return;
+            }
+
+            dwellerService.updateBirthDate(context, optionalBirthDate.get());
+            onBack(context);
+            sender.send("Дата рождения успешно сохранена", context.update, birthDateMenuMarkup());
+        }
+    }
+
+    private void onApartmentPickup(Context context) {
+        if (defaultHandle(context).isHandled()) {
+            return;
+        }
+
+        if (context.text.equals(Constant.BACK)) {
+            onBack(context);
+            sender.send("Выберите следующее действие", context.update, dataMenuMarkup());
+        } else {
+            final NumericCheck check = new NumericCheck(context.text);
+            if (!check.isInteger()) {
+                sender.send("Некорректный формат номера квартиры", context.update, pickupApartmentMarkup(context));
+                return;
+            }
+
+            final Integer apartmentNumber = Integer.parseInt(context.text);
+
+        }
+    }
+
+    private ReplyKeyboardMarkup metersDataMarkup() {
+        return markup(List.of(
+                new KeyboardRow(new KeyboardButton("Просмотреть")),
+                new KeyboardRow(new KeyboardButton("Записать")),
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
+        ));
+    }
+
+    private void onMetersData(Context context) {
+        if (defaultHandle(context).isHandled()) {
+            return;
+        }
+
+        //сначала выбрать квартиру для показаний
+        if (context.text.equals(Constant.BACK)) {
+            onBack(context);
+            sender.send("Выберите следующее действие", context.update, dataMenuMarkup());
+        } else if (context.text.equals("Просмотреть")) {
+            //может быть много квартир. Надо учитывать. Здесь выбираем квартиру из списка
+            //TODO: show latest 5 meters [data -- water -- cold-water -- gaz -- electro]
+        } else if (context.text.equals("Записать")) {
+
+            //TODO: write in specific format
+        } else {
+            onError(context);
+        }
+    }
+
+    private ReplyKeyboardMarkup markup(List<? extends KeyboardRow> rows) {
+        return new ReplyKeyboardMarkupBuilder()
+                .selective(true)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true)
+                .keyboard(rows)
+                .build();
     }
 }

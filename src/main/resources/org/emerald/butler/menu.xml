@@ -6,4 +6,5 @@
           caption="msg://org.emerald.butler.screen.charts/popularityByCityScreen.caption"/>
     <item screen="PopularityByRegionScreen"
           caption="msg://org.emerald.butler.screen.charts/popularityByRegionScreen.caption"/>
+    <item screen="PopularityByAgeScreen" caption="msg://org.emerald.butler.screen.charts/popularityByAge.caption"/>
 </menu-config>

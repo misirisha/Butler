@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.11.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="butler">
+        <createTable tableName="METERS">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_METERS"/>
+            </column>
+            <column name="DWELLER_ID" type="UUID"/>
+            <column name="HOT_WATER" type="INT"/>
+            <column name="COLD_WATER" type="INT"/>
+            <column name="GAS" type="INT"/>
+            <column name="ELECTRICITY" type="INT"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="butler">
+        <addColumn tableName="Dweller">
+            <column name="BIRTH_DATE" type="DATE"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="3" author="butler">
+        <createIndex indexName="IDX_METERS_DWELLER" tableName="METERS">
+            <column name="DWELLER_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="DWELLER_ID" baseTableName="METERS"
+                                 constraintName="FK_METERS_ON_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller_apartment_role"/>
+    </changeSet>
+    <changeSet id="4" author="butler">
+        <dropForeignKeyConstraint baseTableName="Apartment" constraintName="FK_APARTMENT_ON_ID_HOUSE"/>
+    </changeSet>
+    <changeSet id="5" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_house" baseTableName="Apartment"
+                                 constraintName="FK_APARTMENT_ON_ID_HOUSE" onDelete="SET NULL"
+                                 referencedColumnNames="ID" referencedTableName="House"/>
+    </changeSet>
+    <changeSet id="6" author="butler">
+        <dropForeignKeyConstraint baseTableName="Dweller_apartment_role"
+                                  constraintName="FK_DWELLERAPARTME_ON_IDDWELLER"/>
+    </changeSet>
+    <changeSet id="7" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_dweller" baseTableName="Dweller_apartment_role"
+                                 constraintName="FK_DWELLERAPARTME_ON_IDDWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="8" author="butler">
+        <dropForeignKeyConstraint baseTableName="Dweller_apartment_role"
+                                  constraintName="FK_DWELLERAPART_ON_IDAPARTMENT"/>
+    </changeSet>
+    <changeSet id="9" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_apartment" baseTableName="Dweller_apartment_role"
+                                 constraintName="FK_DWELLERAPART_ON_IDAPARTMENT" referencedColumnNames="ID"
+                                 referencedTableName="Apartment"/>
+    </changeSet>
+    <changeSet id="10" author="butler">
+        <dropForeignKeyConstraint baseTableName="Dweller_chat_role" constraintName="FK_DWELLERCHATROLE_ON_IDCHAT"/>
+    </changeSet>
+    <changeSet id="11" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_chat" baseTableName="Dweller_chat_role"
+                                 constraintName="FK_DWELLERCHATROLE_ON_IDCHAT" referencedColumnNames="ID"
+                                 referencedTableName="TelegramChat"/>
+    </changeSet>
+    <changeSet id="12" author="butler">
+        <dropForeignKeyConstraint baseTableName="Dweller_chat_role" constraintName="FK_DWELLERCHATROL_ON_IDDWELLER"/>
+    </changeSet>
+    <changeSet id="13" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_dweller" baseTableName="Dweller_chat_role"
+                                 constraintName="FK_DWELLERCHATROL_ON_IDDWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="14" author="butler">
+        <dropForeignKeyConstraint baseTableName="TelegramChat" constraintName="FK_TELEGRAMCHAT_ON_ID_HOUSE"/>
+    </changeSet>
+    <changeSet id="15" author="butler">
+        <addForeignKeyConstraint baseColumnNames="id_house" baseTableName="TelegramChat"
+                                 constraintName="FK_TELEGRAMCHAT_ON_ID_HOUSE" referencedColumnNames="ID"
+                                 referencedTableName="House"/>
+    </changeSet>
+    <changeSet id="16" author="butler">
+        <dropForeignKeyConstraint baseTableName="Transport" constraintName="FK_TRANSPORT_ON_DWELLER"/>
+    </changeSet>
+    <changeSet id="17" author="butler">
+        <addForeignKeyConstraint baseColumnNames="dweller_id" baseTableName="Transport"
+                                 constraintName="FK_TRANSPORT_ON_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+    <changeSet id="18" author="butler">
+        <dropForeignKeyConstraint baseTableName="user_command_trace" constraintName="FK_USERCOMMANDT_ON_USERCOMMAND"/>
+    </changeSet>
+    <changeSet id="19" author="butler">
+        <addForeignKeyConstraint baseColumnNames="user_command_id" baseTableName="user_command_trace"
+                                 constraintName="FK_USERCOMMANDT_ON_USERCOMMAND" referencedColumnNames="ID"
+                                 referencedTableName="User_command"/>
+    </changeSet>
+    <changeSet id="20" author="butler">
+        <dropForeignKeyConstraint baseTableName="User_command" constraintName="FK_USER_COMMAND_ON_DWELLER"/>
+    </changeSet>
+    <changeSet id="21" author="butler">
+        <addForeignKeyConstraint baseColumnNames="dweller_id" baseTableName="User_command"
+                                 constraintName="FK_USER_COMMAND_ON_DWELLER" referencedColumnNames="ID"
+                                 referencedTableName="Dweller"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,5 +1,6 @@
 package org.emerald.butler.entity;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -46,32 +47,11 @@ public class Dweller extends StandardEntity {
     @Column(name = "username")
     private String userName;
 
+    @Column(name = "BIRTH_DATE")
+    private LocalDate birthDate;
+
     public static DwellerBuilder builder(Metadata metadata) {
         return new DwellerBuilder(metadata);
-    }
-
-    public Collection<Transport> getTransports() {
-        return transports;
-    }
-
-    public void setTransports(Collection<Transport> transports) {
-        this.transports = transports;
-    }
-
-    public Collection<DwellerChatRole> getChats() {
-        return chats;
-    }
-
-    public void setChats(Collection<DwellerChatRole> chats) {
-        this.chats = chats;
-    }
-
-    public Collection<DwellerApartmentRole> getApartments() {
-        return apartments;
-    }
-
-    public void setApartments(Collection<DwellerApartmentRole> apartments) {
-        this.apartments = apartments;
     }
 
     @DependsOnProperties({"firstName", "lastName"})

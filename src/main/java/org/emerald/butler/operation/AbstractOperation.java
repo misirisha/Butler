@@ -8,7 +8,9 @@ import java.util.function.Consumer;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.emerald.butler.Constant;
 import org.emerald.butler.component.Sender;
 import org.emerald.butler.component.UserCommandManager;
 import org.emerald.butler.entity.UserCommand;
@@ -16,17 +18,26 @@ import org.emerald.butler.entity.UserCommandTrace;
 import org.emerald.butler.repository.DwellerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-@RequiredArgsConstructor
+@NoArgsConstructor
 public abstract class AbstractOperation implements Operation {
     private static final Logger log = LoggerFactory.getLogger(AbstractOperation.class);
 
-    protected final UserCommandManager userCommandManager;
-    protected final Sender sender;
-    protected final DwellerRepository dwellerRepository;
+    protected UserCommandManager userCommandManager;
+    protected Sender sender;
+    protected DwellerRepository dwellerRepository;
+
+    protected AbstractOperation(UserCommandManager userCommandManager,
+                                Sender sender,
+                                DwellerRepository dwellerRepository) {
+        this.userCommandManager = userCommandManager;
+        this.sender = sender;
+        this.dwellerRepository = dwellerRepository;
+    }
 
     protected abstract Map<String, Consumer<Context>> getProgressesMap();
 
@@ -76,6 +87,35 @@ public abstract class AbstractOperation implements Operation {
         }
     }
 
+    protected IsHandled defaultHandle(Context context) {
+        if (context.text.equals(Constant.CANCEL)) {
+            onCancel(context);
+            return IsHandled.YES;
+        }
+
+        return IsHandled.NO;
+    }
+
+    @Autowired
+    protected void setUserCommandManager(UserCommandManager userCommandManager) {
+        this.userCommandManager = userCommandManager;
+    }
+
+    @Autowired
+    public void setDwellerRepository(DwellerRepository dwellerRepository) {
+        this.dwellerRepository = dwellerRepository;
+    }
+
+    @Autowired
+    public void setSender(Sender sender) {
+        this.sender = sender;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
     @EqualsAndHashCode
     @Getter
     @RequiredArgsConstructor
@@ -85,11 +125,13 @@ public abstract class AbstractOperation implements Operation {
     }
 
     @RequiredArgsConstructor
-    protected static final class Context {
-        public final String currentStage;
-        public final Update update;
-        public final User user;
-        public final UserCommand userCommand;
-        public final String text;
+    protected enum IsHandled {
+        YES(true), NO(false);
+
+        private final boolean handled;
+
+        public boolean isHandled() {
+            return handled;
+        }
     }
 }
