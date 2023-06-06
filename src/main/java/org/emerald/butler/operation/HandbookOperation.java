@@ -70,36 +70,33 @@ public class HandbookOperation extends AbstractOperation {
 
         if (context.isText("Номера телефонов авар. служб")) {
             final List<HandbookItem> items = handbookService.getAllItems(context, HandbookCategory.PHONES);
-            items.sort(Comparator.comparing(HandbookItem::getCreatedDate));
+            items.sort(Comparator.comparing(HandbookItem::getCreatedDate).reversed());
 
             String message = items.stream().map(HandbookItem::getValue).collect(Collectors.joining("\n"));
             if (message.isBlank()) {
                 message = "Нет информации о номерах телефонов аварийных служб";
             }
 
-            //onBack(context);
             sender.sendToChat(message, context.update, handbookMenuMarkup());
         } else if (context.isText("Даты ремонтных работ")) {
             final List<HandbookItem> items = handbookService.getAllItems(context, HandbookCategory.REPAIRS);
-            items.sort(Comparator.comparing(HandbookItem::getCreatedDate));
+            items.sort(Comparator.comparing(HandbookItem::getCreatedDate).reversed());
 
             String message = items.stream().map(HandbookItem::getValue).collect(Collectors.joining("\n"));
             if (message.isBlank()) {
                 message = "Нет информации о датах ремонтных работ";
             }
 
-            //onBack(context);
             sender.sendToChat(message, context.update, handbookMenuMarkup());
         } else if (context.isText("Общедомовые мероприятия")) {
             final List<HandbookItem> items = handbookService.getAllItems(context, HandbookCategory.MEETINGS);
-            items.sort(Comparator.comparing(HandbookItem::getCreatedDate));
+            items.sort(Comparator.comparing(HandbookItem::getCreatedDate).reversed());
 
             String message = items.stream().map(HandbookItem::getValue).collect(Collectors.joining("\n"));
             if (message.isBlank()) {
                 message = "Нет информации об общедомовых мероприятиях";
             }
 
-            //onBack(context);
             sender.sendToChat(message, context.update, handbookMenuMarkup());
         } else if (context.isText("Записать")) {
             userCommandManager.updateProgress(context.userCommand, "записать данные в справочник");
