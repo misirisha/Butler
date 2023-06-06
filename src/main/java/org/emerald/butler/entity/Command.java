@@ -13,7 +13,8 @@ public enum Command {
     FIND_HOUSE("2", "Найти дом", "/findhouse", Set.of(CommandType.PRIVATE)),
     ADD_CHAT_AND_HOUSE("3", "Добавить чат и дом", "/addhouse", Set.of(CommandType.GROUP, CommandType.SUPERGROUP)),
     ADD_APARTMENT("4", "Добавить квартиру", "/addapartment", Set.of(CommandType.PRIVATE, CommandType.GROUP, CommandType.SUPERGROUP)),
-    FIND_DWELLER("5", "Найти жителя", "/finddweller", Set.of(CommandType.PRIVATE));
+    FIND_DWELLER("5", "Найти жителя", "/finddweller", Set.of(CommandType.PRIVATE)),
+    HANDBOOK("6", "Справочник", "/handbook", Set.of(CommandType.GROUP, CommandType.SUPERGROUP));
 
     private final String id;
     private final String text;

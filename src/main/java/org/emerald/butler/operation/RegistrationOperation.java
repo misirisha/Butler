@@ -20,7 +20,6 @@ import org.emerald.butler.repository.TransportJmixRepository;
 import org.emerald.butler.service.DwellerService;
 import org.emerald.butler.service.TransportService;
 import org.emerald.butler.telegram.KeyboardRow;
-import org.emerald.butler.telegram.ReplyKeyboardMarkupBuilder;
 import org.emerald.butler.util.Format;
 import org.emerald.butler.util.NumericCheck;
 import org.springframework.stereotype.Component;
@@ -78,23 +77,18 @@ public class RegistrationOperation extends AbstractOperation {
     }
 
     private ReplyKeyboardMarkup startMarkup() {
-        return new ReplyKeyboardMarkupBuilder()
-                .selective(true)
-                .resizeKeyboard(true)
-                .oneTimeKeyboard(true)
-                .keyboard(List.of(
-                        new KeyboardRow(new KeyboardButton("Автомобили")),
-                        new KeyboardRow(new KeyboardButton("Данные")),
-                        new KeyboardRow(new KeyboardButton(Constant.CANCEL))
-                ))
-                .build();
+        return markup(List.of(
+                new KeyboardRow(new KeyboardButton("Автомобили")),
+                new KeyboardRow(new KeyboardButton("Данные")),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
+        ));
     }
 
     private void infoAboutMe(Context context) {
-        if (context.text.equals("Автомобили")) {
+        if (context.isText("Автомобили")) {
             userCommandManager.updateProgress(context.userCommand, "управление транспортом");
             sender.send("Выберите следующее действие", context.update, transportManagementMarkup());
-        } else if (context.text.equals("Данные")) {
+        } else if (context.isText("Данные")) {
             userCommandManager.updateProgress(context.userCommand, "меню данных");
             sender.send("Выберите следующее действие", context.update, dataMenuMarkup());
         } else if (context.text.equals(Constant.CANCEL)){
@@ -105,19 +99,12 @@ public class RegistrationOperation extends AbstractOperation {
     }
 
     private ReplyKeyboardMarkup transportManagementMarkup() {
-        final ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
-        markup.setSelective(true);
-        markup.setResizeKeyboard(true);
-        markup.setOneTimeKeyboard(true);
-
-        final List<KeyboardRow> rows = List.of(
+        return markup(List.of(
                 new KeyboardRow(new KeyboardButton("Список")),
                 new KeyboardRow(new KeyboardButton("Добавить")),
                 new KeyboardRow(new KeyboardButton(Constant.BACK)),
                 new KeyboardRow(new KeyboardButton(Constant.CANCEL))
-        );
-        markup.setKeyboard(new ArrayList<>(rows));
-        return markup;
+        ));
     }
 
     private void onTransportManagement(Context context) {
@@ -198,19 +185,12 @@ public class RegistrationOperation extends AbstractOperation {
     }
 
     private ReplyKeyboardMarkup updateListTransportsMarkup() {
-        final ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
-        markup.setSelective(true);
-        markup.setResizeKeyboard(true);
-        markup.setOneTimeKeyboard(true);
-
-        final List<KeyboardRow> rows = List.of(
+        return markup(List.of(
                 new KeyboardRow(new KeyboardButton("Удалить")),
                 new KeyboardRow(new KeyboardButton("Добавить")),
                 new KeyboardRow(new KeyboardButton(Constant.BACK)),
                 new KeyboardRow(new KeyboardButton(Constant.CANCEL))
-        );
-        markup.setKeyboard(new ArrayList<>(rows));
-        return markup;
+        ));
     }
 
     private void onDeleteTransport(Context context) {
@@ -258,20 +238,6 @@ public class RegistrationOperation extends AbstractOperation {
                 }
             }
         }
-    }
-
-    private ReplyKeyboardMarkup defaultMarkup() {
-        final ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
-        markup.setSelective(true);
-        markup.setResizeKeyboard(true);
-        markup.setOneTimeKeyboard(true);
-
-        final List<KeyboardRow> rows = List.of(
-                new KeyboardRow(new KeyboardButton(Constant.BACK)),
-                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
-        );
-        markup.setKeyboard(new ArrayList<>(rows));
-        return markup;
     }
 
     private ReplyKeyboardMarkup dataMenuMarkup() {
@@ -411,14 +377,5 @@ public class RegistrationOperation extends AbstractOperation {
         } else {
             onError(context);
         }
-    }
-
-    private ReplyKeyboardMarkup markup(List<? extends KeyboardRow> rows) {
-        return new ReplyKeyboardMarkupBuilder()
-                .selective(true)
-                .resizeKeyboard(true)
-                .oneTimeKeyboard(true)
-                .keyboard(rows)
-                .build();
     }
 }

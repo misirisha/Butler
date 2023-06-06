@@ -242,20 +242,6 @@ public class FindHouseOperation extends AbstractOperation {
         return markup;
     }
 
-    private ReplyKeyboardMarkup defaultMarkup() {
-        final ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
-        markup.setSelective(true);
-        markup.setResizeKeyboard(true);
-        markup.setOneTimeKeyboard(true);
-
-        final List<KeyboardRow> rows = List.of(
-                new KeyboardRow(new KeyboardButton("Назад")),
-                new KeyboardRow(new KeyboardButton("Отмена"))
-        );
-        markup.setKeyboard(new ArrayList<>(rows));
-        return markup;
-    }
-
     @Override
     public Command getCommand() {
         return Command.FIND_HOUSE;

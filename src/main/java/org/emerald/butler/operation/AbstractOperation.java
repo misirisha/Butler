@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,12 +17,17 @@ import org.emerald.butler.component.UserCommandManager;
 import org.emerald.butler.entity.UserCommand;
 import org.emerald.butler.entity.UserCommandTrace;
 import org.emerald.butler.repository.DwellerRepository;
+import org.emerald.butler.telegram.KeyboardRow;
+import org.emerald.butler.telegram.ReplyKeyboardMarkupBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
 @NoArgsConstructor
 public abstract class AbstractOperation implements Operation {
@@ -94,6 +100,35 @@ public abstract class AbstractOperation implements Operation {
         }
 
         return IsHandled.NO;
+    }
+
+    protected IsHandled defaultHandle(Context context, Supplier<? extends ReplyKeyboard> onBackMarkup) {
+        if (context.text.equals(Constant.CANCEL)) {
+            onCancel(context);
+            return IsHandled.YES;
+        } else if (context.isText(Constant.BACK)) {
+            onBack(context);
+            sender.send("Выберите следующее действие", context.update, onBackMarkup.get());
+            return IsHandled.YES;
+        }
+
+        return IsHandled.NO;
+    }
+
+    protected ReplyKeyboardMarkup defaultMarkup() {
+        return markup(List.of(
+                new KeyboardRow(new KeyboardButton(Constant.BACK)),
+                new KeyboardRow(new KeyboardButton(Constant.CANCEL))
+        ));
+    }
+
+    protected ReplyKeyboardMarkup markup(List<? extends KeyboardRow> rows) {
+        return new ReplyKeyboardMarkupBuilder()
+                .selective(true)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true)
+                .keyboard(rows)
+                .build();
     }
 
     @Autowired
