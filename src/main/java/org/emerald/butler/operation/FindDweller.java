@@ -62,12 +62,12 @@ public class FindDweller extends AbstractOperation {
         return Map.of(
                 "start", this::onStart,
                 "выбор поиска", this::searchSelection,
-                "поиск по номеру квартиры", this::findByApartment,
                 "поиск по номеру машины", this::findByTransport,
                 "выбор дома", this::houseSelection,
                 "квартира", this::numberInput
         );
     }
+    //"поиск по номеру квартиры", this::findByApartment,
 
     private void onStart(Context context) {
         userCommandManager.updateProgress(context.userCommand, "выбор поиска");
@@ -89,8 +89,21 @@ public class FindDweller extends AbstractOperation {
 
     private void searchSelection(Context context){
         if(context.text.equals("По номеру квартиры")){
-            userCommandManager.updateProgress(context.userCommand, "поиск по номеру квартиры");
-            sender.send("Введите номер квартиры", context.update, defaultMarkup());
+
+            List<DwellerChatRole> dwellerChatRoleList =
+                    dwellerChatRoleRepository.findAllByDwellerTelegramId(context.update.getMessage().getFrom().getId());
+            if(dwellerChatRoleList.isEmpty()){
+                userCommandManager.clear(context.user);
+                sender.send("Вы не зарегистрированы ни в одном доме", context.update);
+                return;
+            }
+            List<String> houses = new ArrayList<>();
+            for (DwellerChatRole dweller: dwellerChatRoleList){
+                houses.add(dweller.getChat().getHouse().toString());
+            }
+
+            userCommandManager.updateProgress(context.userCommand, "выбор дома");
+            sender.send("Выберете дом", context.update, houseSelectionMarkup(houses));
         }else if(context.text.equals("По номеру машины")){
             userCommandManager.updateProgress(context.userCommand, "поиск по номеру машины");
             sender.send("Введите номер машины", context.update, defaultMarkup());
@@ -101,7 +114,7 @@ public class FindDweller extends AbstractOperation {
         }
     }
 
-
+/*
     private void findByApartment(Context context){
         if(context.text.equals("Назад")){
             onBack(context);
@@ -123,6 +136,7 @@ public class FindDweller extends AbstractOperation {
             sender.send("Выберете дом", context.update, houseSelectionMarkup(houses));
         }
     }
+ */
 
     private void houseSelection(Context context){
         if(context.text.equals("Назад")){
@@ -165,10 +179,19 @@ public class FindDweller extends AbstractOperation {
 
                 if(apartmentOptional.isEmpty()){
                     userCommandManager.clear(context.user);
-                    sender.send("В квартире никто не зарегистрирован", context.update, defaultMarkup());
+                    sender.send("В квартире никто не зарегистрирован", context.update);
                 }else {
                     Optional<DwellerApartmentRole> dwellerApartmentRoleOptional =
                             dwellerApartmentRoleRepository.findByApartmentIdAndApartmentRole(apartmentOptional.get().getId(), ApartmentRole.OWNER.getId());
+                    if(dwellerApartmentRoleOptional.isEmpty()){
+                        userCommandManager.clear(context.user);
+                        sender.send("В квартире никто не зарегистрирован", context.update);
+                        return;
+                    }
+                    DwellerApartmentRole dwellerApartmentRole = dwellerApartmentRoleOptional.get();
+                    String result = "@" + dwellerApartmentRole.getDweller().getUserName();
+                    userCommandManager.clear(context.user);
+                    sender.send(result, context.update);
                 }
             }else {
                 sender.send("Некорректный ввод. \nВведите номер квартиры", context.update, defaultMarkup());

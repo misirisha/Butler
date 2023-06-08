@@ -4,17 +4,11 @@
     <moduleSettings>
       <entry key="butler.main">
         <ModuleSettings>
-          <option name="dataStoreOptionsV2">
+          <option name="dataStoreOptions">
             <map>
               <entry key="main">
                 <value>
-                  <DataStoreSettingsV2>
-                    <option name="generateDdlType" value="CREATE_AND_UPDATE" />
-                    <option name="nameLengthMode" value="ORACLE" />
-                    <option name="supportedTypes">
-                      <option value="postgres" />
-                    </option>
-                  </DataStoreSettingsV2>
+                  <DataStoreSettings />
                 </value>
               </entry>
             </map>
