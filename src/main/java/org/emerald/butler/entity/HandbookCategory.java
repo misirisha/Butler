@@ -1,18 +1,14 @@
 package org.emerald.butler.entity;
 
-import java.util.Collection;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
+import io.jmix.core.DeletePolicy;
+import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.persistence.*;
+import java.util.Collection;
 
 @Setter
 @Getter
@@ -21,9 +17,12 @@ import lombok.Setter;
 @Entity
 public class HandbookCategory extends StandardEntity {
     public static final String PHONES = "Телефоны ав. служб";
+
     public static final String REPAIRS = "Даты проведения рем. работ";
+
     public static final String MEETINGS = "Общедомовые мероприятия";
 
+    @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "HANDBOOK_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Handbook handbook;

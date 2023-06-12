@@ -1,10 +1,7 @@
 package org.emerald.butler.entity;
 
 import java.util.Collection;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import io.jmix.core.Metadata;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
@@ -25,7 +22,7 @@ import org.emerald.butler.entity.builder.HouseBuilder;
 @Table(name = "House")
 public class House extends StandardEntity {
 
-    @OneToMany(mappedBy = "house")
+    @OneToMany(mappedBy = "house", cascade = CascadeType.REMOVE)
     private Collection<Apartment> apartmens;
 
     @Column(name = "region")

@@ -1,16 +1,10 @@
 package org.emerald.butler.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.Messages;
 import io.jmix.core.Metadata;
 import io.jmix.core.entity.annotation.OnDelete;
+import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -19,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.emerald.butler.entity.builder.DwellerChatRoleBuilder;
+
+import javax.persistence.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,12 +25,11 @@ import org.emerald.butler.entity.builder.DwellerChatRoleBuilder;
 @Table(name = "Dweller_chat_role")
 public class DwellerChatRole extends StandardEntity {
 
-    @OnDelete(DeletePolicy.CASCADE)
+    @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "id_chat")
     @ManyToOne(fetch = FetchType.LAZY)
     private TelegramChat chat;
 
-    @OnDelete(DeletePolicy.CASCADE)
     @JoinColumn(name = "id_dweller")
     @ManyToOne(fetch = FetchType.LAZY)
     private Dweller dweller;

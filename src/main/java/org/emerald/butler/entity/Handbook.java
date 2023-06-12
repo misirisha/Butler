@@ -1,18 +1,15 @@
 package org.emerald.butler.entity;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
+import io.jmix.core.DeletePolicy;
+import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 @Setter
 @Getter
@@ -21,6 +18,7 @@ import lombok.Setter;
 @Entity
 public class Handbook extends StandardEntity {
 
+    @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "CHAT_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private TelegramChat chat;

@@ -1,13 +1,7 @@
 package org.emerald.butler.entity;
 
 import java.util.Collection;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.Metadata;
@@ -30,13 +24,11 @@ import org.emerald.butler.entity.builder.ApartmentBuilder;
 @Table(name = "Apartment")
 public class Apartment extends StandardEntity {
 
-    @OnDeleteInverse(DeletePolicy.UNLINK)
-    @OnDelete(DeletePolicy.CASCADE)
     @JoinColumn(name = "id_house")
     @ManyToOne(fetch = FetchType.LAZY)
     private House house;
 
-    @OneToMany(mappedBy = "apartment")
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.REMOVE)
     private Collection<DwellerApartmentRole> dwellers;
 
     @Column(name = "front_door")

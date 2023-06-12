@@ -2,10 +2,7 @@ package org.emerald.butler.entity;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import io.jmix.core.Metadata;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
@@ -26,13 +23,13 @@ import org.emerald.butler.entity.builder.DwellerBuilder;
 @Table(name = "Dweller")
 public class Dweller extends StandardEntity {
 
-    @OneToMany(mappedBy = "dweller")
+    @OneToMany(mappedBy = "dweller", cascade = CascadeType.REMOVE)
     private Collection<DwellerApartmentRole> apartments;
 
-    @OneToMany(mappedBy = "dweller")
+    @OneToMany(mappedBy = "dweller", cascade = CascadeType.REMOVE)
     private Collection<DwellerChatRole> chats;
 
-    @OneToMany(mappedBy = "dweller")
+    @OneToMany(mappedBy = "dweller", cascade = CascadeType.REMOVE)
     private Collection<Transport> transports;
 
     @Column(name = "first_name")
