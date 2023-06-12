@@ -1,7 +1,6 @@
 plugins {
     id 'io.jmix' version '1.4.3'
     id 'java'
-    id("io.freefair.lombok") version "8.0.1"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -21,6 +20,12 @@ repositories {
 }
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.28'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.28'
+
     implementation 'org.telegram:telegrambots:6.0.0'
 
     implementation 'io.jmix.core:jmix-core-starter'
